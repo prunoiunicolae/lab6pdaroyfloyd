@@ -1,0 +1,117 @@
+# lab6pdaroyfloyd
+
+
+
+#include<iostream>
+
+#include"mpi.h"
+
+#include <ctime>
+
+#include <cstdlib>
+
+#include <chrono>
+
+
+
+#define MASTER 0
+
+#define m 6
+
+#define inf 1000
+
+int main(int argc, char *argv[]){
+
+	
+
+	int a[7][7]={{0, 0, 0, 0, 0, 0, 0}
+
+			{0, 0, 2, 1, inf, 7, 5}
+
+			{0, 2, 0, inf, 5, inf, inf}
+
+			{0, 1, inf, 0, inf, 4, 2}
+
+			{0, inf, 5, inf, 0, 7, inf}
+
+			{0, 7, inf, 4, 7, 0, inf}
+
+			{0, 5, inf, 2, inf, inf, 0}}
+
+	
+
+	MPI_Init(&argc,&argv);
+
+	
+
+	int var = 0;
+
+	int numprocs, procid, len;
+
+	int message,i,j,k;
+
+	int max_final, proc_leader;
+
+	MPI_Status status;
+
+	
+
+	MPI_Comm_size(MPI_COMM_WORLD, &numprocs);
+
+	MPI_Comm_rank(MPI_COMM_WORLD, &procid);
+
+	//MPI_Get_processor_name(hostname, &len);
+
+	if(procid < m){
+
+		if(procid == MASTER)
+
+		{
+
+				
+
+			for(k=1;k<=m;k++)
+
+				for(i=1;i<=m;i++)
+
+					MPI_Send(&k, 1, MPI_INT, i, 1, MPI_COMM_WORLD);
+
+
+
+			
+
+		}
+
+		else
+
+		{
+
+			MPI_Recv(&k, 1, MPI_INT, MASTER, 1, MPI_COMM_WORLD, &status);
+
+			for(j=1;j<=m;j++)
+
+				 if(a[procid][j]>a[procid][k]+a[k][j])
+
+				 	a[procid][j]=a[procid][k]+a[k][j];
+
+			MPI_Barrier(MPI_COMM_WORLD);
+
+			cout<<"salut! eu sunt procesul(nodul) cu numarul "<<procid<<" si cele mai optime drumuri catre celelalte noduri(procese sunt urmatoarele: ";
+
+			for(j=1;j<=m;j++)
+
+				cout<<a[procid][j]<<", ";
+
+			cout<<endl;
+
+			 
+
+		}
+
+	
+
+	MPI_Finalize();
+
+	return 0;
+
+}
